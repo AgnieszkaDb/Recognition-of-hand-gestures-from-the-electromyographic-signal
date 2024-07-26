@@ -3,11 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*/E:/jupyter notebook/jupyter notebook/me
+
 # csv
 *.csv
 
 # C extensions
 *.so
+
+*/E:/jupyter notebook/jupyter notebook/me
 
 # Distribution / packaging
 .Python
