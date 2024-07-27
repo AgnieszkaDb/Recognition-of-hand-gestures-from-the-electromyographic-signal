@@ -25,7 +25,7 @@ def load_and_aggregate_data(root_dir):
                         if rep_file.endswith('.mat'):
                             output_emg_array = np.zeros((rows_padding, cols))
                             rep_path = os.path.join(gesture_dir, rep_file)
-                            
+
                             data = loadmat(rep_path)
                             emg_data = data['emg']
                             label = data['stimulus']
