@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-./models/javier/E:/jupyter notebook/jupyter notebook/me/vlog.12.5.data-00000-of-00001
+../E:/jupyter notebook/jupyter notebook/me/vlog.12.5.data-00000-of-00001
 
 # csv
 *.csv
