@@ -1,170 +1,70 @@
 #!/bin/bash
 
+export KMP_WARNINGS=0
+
 LOG_PREFIX="Hilbert_Curve_DenseNet"
-# ### Dense Exps window 16 ###
-for i in {0..5..1}
-do
-	TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-	SUBJECT="1"
-	for SUBJECT in 2 21 6 8 5 10 18 16 13 14
-	do
-		python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-		--timestamp $TIMESTAMP --log "${LOG_PREFIX}_Model_$i" \
-		--include_rest_gesture --img_height 16 --img_width 10 --img_depth 1 \
-		--window_size 16 --window_step 1 \
-		--augment_factor 1 \
-		--augment_jitter 25 --augment_mwrp 0.2 \
-		--hilbert_type "none" \
-		--model_params "dense_params_$i.json" --dropout 0.1 \
-		--epochs 30 --batch_size 1024 \
-		--validation
-		SUBJECT=$[$SUBJECT+1]
-	done
+
+run_experiment() {
+    local subject=$1
+    local model=$2
+    local log_prefix=$3
+    local img_height=$4
+    local img_width=$5
+    local img_depth=$6
+    local window_size=$7
+    local window_step=$8
+    local hilbert_type=$9
+    local model_params=${10}
+    local dropout=${11}
+    local epochs=${12}
+    local batch_size=${13}
+    local include_validation=${14}
+
+    python3 run_experiment_hilbert.py --subject "$subject" --model "$model" \
+        --timestamp "$TIMESTAMP" --log "$log_prefix" \
+        --include_rest_gesture --img_height "$img_height" --img_width "$img_width" --img_depth "$img_depth" \
+        --window_size "$window_size" --window_step "$window_step" \
+        --augment_jitter 25 --augment_mwrp 0.2 \
+        --hilbert_type "$hilbert_type" \
+        --model_params "$model_params" --dropout "$dropout" \
+        --epochs "$epochs" --batch_size "$batch_size" \
+        $include_validation
+}
+
+run_batch_experiments() {
+    local img_height=$1
+    local img_width=$2
+    local img_depth=$3
+    local window_size=$4
+    local hilbert_type=$5
+    local epochs=$6
+    local include_validation=$7
+
+    SUBJECT=1
+    while [ $SUBJECT -lt 28 ]; do
+        run_experiment "$SUBJECT" "DENSE" "${LOG_PREFIX}_${BEST_CONFIG}" "$img_height" "$img_width" "$img_depth" "$window_size" 1 "$hilbert_type" "dense_params_${BEST_CONFIG}.json" 0.1 "$epochs" 1024 "$include_validation"
+        SUBJECT=$((SUBJECT + 1))
+    done
+}
+
+# Dense Exps window 16 ###
+for i in 3; do
+    TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
+    for SUBJECT in 2 21 6 8 5 10 18 16 13 14; do
+        run_experiment "$SUBJECT" "DENSE" "${LOG_PREFIX}_Model_$i" 16 10 1 16 1 "none" "dense_params_$i.json" 0.1 30 1024 "--validation"
+    done
 done
 
 BEST_CONFIG=4
 TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 16 --img_width 10 --img_depth 1 \
-	--window_size 16 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "none" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
 
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 4 --img_width 4 --img_depth 10 \
-	--window_size 16 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "time" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 4 --img_width 4 --img_depth 16 \
-	--window_size 16 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "electrodes" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 32 --img_width 10 --img_depth 1 \
-	--window_size 32 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "none" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 8 --img_width 8 --img_depth 10 \
-	--window_size 32 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "time" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 4 --img_width 4 --img_depth 32 \
-	--window_size 32 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "electrodes" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 64 --img_width 10 --img_depth 1 \
-	--window_size 64 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "none" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 8 --img_width 8 --img_depth 10 \
-	--window_size 64 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "time" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
-
-TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
-SUBJECT="1"
-while [ $SUBJECT -lt 28 ]
-do
-	python3 run_experiment_hilbert.py --subject $SUBJECT --model "DENSE" \
-	--timestamp $TIMESTAMP --log "${LOG_PREFIX}_${BEST_CONFIG}" \
-	--include_rest_gesture --img_height 4 --img_width 4 --img_depth 64 \
-	--window_size 64 --window_step 1 \
-	--augment_factor 1 \
-	--augment_jitter 25 --augment_mwrp 0.2 \
-	--hilbert_type "electrodes" \
-	--model_params "dense_params_${BEST_CONFIG}.json" --dropout 0.1 \
-	--epochs 60 --batch_size 1024
-	SUBJECT=$[$SUBJECT+1]
-done
+# Run experiments with different configurations
+run_batch_experiments 16 10 1 16 "none" 60 ""
+run_batch_experiments 4 4 10 16 "time" 60 ""
+run_batch_experiments 4 4 16 16 "electrodes" 60 ""
+run_batch_experiments 32 10 1 32 "none" 60 ""
+run_batch_experiments 8 8 10 32 "time" 60 ""
+run_batch_experiments 4 4 32 32 "electrodes" 60 ""
+run_batch_experiments 64 10 1 64 "none" 60 ""
+run_batch_experiments 8 8 10 64 "time" 60 ""
+run_batch_experiments 4 4 64 64 "electrodes" 60 ""

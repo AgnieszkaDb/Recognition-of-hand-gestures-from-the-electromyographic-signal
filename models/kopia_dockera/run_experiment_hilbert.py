@@ -193,12 +193,12 @@ augment = Pipeline([
     ('jitter', pipelines.augmentation.TrfJitter(D_JITTER))
 ])
 
-for _ in range(D_AUGMENT_FACTOR):
-    x_temp.append(augment.transform(X_train))
+# for _ in range(D_AUGMENT_FACTOR):
+#     x_temp.append(augment.transform(X_train))
 
-print(f"Merge initial train and augmented")
-X_train = np.concatenate([X_train, np.concatenate(x_temp)])
-Y_train = np.concatenate([Y_train, np.tile(Y_train, D_AUGMENT_FACTOR)])
+# print(f"Merge initial train and augmented")
+# X_train = np.concatenate([X_train, np.concatenate(x_temp)])
+# Y_train = np.concatenate([Y_train, np.tile(Y_train, D_AUGMENT_FACTOR)])
 
 print('len(X_train): {}\nlen(Y_train): {}'.format(len(X_train), len(Y_train)))
 
