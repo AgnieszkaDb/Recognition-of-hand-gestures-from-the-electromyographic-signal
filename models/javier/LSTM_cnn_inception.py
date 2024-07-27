@@ -4,10 +4,8 @@ import pandas as pd
 import tensorflow as tf #2.13
 import keras
 import numpy as np
-import matplotlib.pyplot as plt
 
-
-FilePath1 = r"/home/agn/studia/magisterka/javier/EMG-Gesture-Recognition/processed_NinaDB1_try.csv"
+FilePath1 = "processed_NinaDB1.csv"
 train_emg = pd.read_csv(FilePath1)
 
 

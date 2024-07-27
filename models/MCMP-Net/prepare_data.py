@@ -4,27 +4,28 @@ from tqdm import tqdm
 from scipy.io import loadmat, savemat
 from sklearn.model_selection import train_test_split
 
-root_dir = '/home/agn/studia/magisterka/kopia_dockera/Datasets/Datasets/Ninapro-DB1'
+root_dir = '../hilbert_curve/Datasets/Datasets/Ninapro-DB1'
+# root_dir = '/home/agn/studia/magisterka/Recognition-of-hand-gestures-from-the-electromyographic-signal/models/hilbert_curve/Datasets/Datasets/Ninapro-DB1'
 rows_padding = 661
 cols = 11
-
 
 def load_and_aggregate_data(root_dir):
     aggregated_data = []
 
     for patient in tqdm(os.listdir(root_dir)):
         patient_dir = os.path.join(root_dir, patient)
-        if os.path.isdir(patient_dir):
 
+        if os.path.isdir(patient_dir):
             for gesture in os.listdir(patient_dir):
                 gesture_dir = os.path.join(patient_dir, gesture)
                 if gesture == "gesture-00": break
+
                 if os.path.isdir(gesture_dir):
                     for rep_file in os.listdir(gesture_dir):
                         if rep_file.endswith('.mat'):
                             output_emg_array = np.zeros((rows_padding, cols))
                             rep_path = os.path.join(gesture_dir, rep_file)
-                            
+
                             data = loadmat(rep_path)
                             emg_data = data['emg']
                             label = data['stimulus']
