@@ -4,20 +4,23 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-#b,a = scsig.butter(1,1/50,'low')
-folder_s = '__zip__/Ninapro-DB1'
+# /home/agn/studia/magisterka/Recognition-of-hand-gestures-from-the-electromyographic-signal/data
+folder_s = '/home/agn/studia/magisterka/Recognition-of-hand-gestures-from-the-electromyographic-signal/data'
 folder_t = 'Datasets/Ninapro-DB1'
 rep_index = 10
 sti_index = 11
 gro_index = 12
 if not os.path.exists(folder_t):
     os.makedirs(folder_t)
-for s in range(1,28):
-    print(s)
+
+for s in tqdm(range(1,28)):
+    subject = f's{s}'
+
     for e in range(1,4):
-        file = '{}/S{}_A1_E{}.mat'.format(folder_s,s,e);
+        file = '{}/{}/S{}_A1_E{}.mat'.format(folder_s,subject,s,e);
         datamat = scio.loadmat(file)
 
         _size = np.min([datamat['emg'].shape[0], datamat['rerepetition'].shape[0], datamat['restimulus'].shape[0]])
