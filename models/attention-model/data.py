@@ -1,6 +1,7 @@
 # built in libraries
 import random
 import multiprocessing
+from tqdm import tqdm
 
 # third party
 import numpy as np
@@ -163,14 +164,25 @@ class dataset_without_imu(object):
         data = []
         labs = []
         reps = []
-        # for i in range(1, 4):
-        for i in range(1, 10):
+        # # for i in range(1, 4):
+        # for i in range(1, 2):
 
-            path = f"{self.path}/s{i}/S{i}_A1_E{trial}.mat"
-            emg, l, r = self._load_file(path, ex=trial, features=features)
-            data.append(emg)
-            labs.append(l)
-            reps.append(r)
+        #     path = f"{self.path}/s{i}/S{i}_A1_E{trial}.mat"
+        #     emg, l, r = self._load_file(path, ex=trial, features=features)
+        #     data.append(emg)
+        #     labs.append(l)
+        #     reps.append(r)
+
+        # for i in range(1, 4):
+        
+        i=1
+        path = f"{self.path}/s{i}/S{i}_A1_E{trial}.mat"
+        emg, l, r = self._load_file(path, ex=trial, features=features)
+        data.append(emg)
+        labs.append(l)
+        reps.append(r)
+
+
         return data, labs, reps
 
     def read_data(self):
@@ -179,7 +191,7 @@ class dataset_without_imu(object):
         self.labels = []
         self.repetition = []
 
-        for e in self.exercises:
+        for e in tqdm(self.exercises):
             # In the papers the exercises are lettered not numbered, but to load
             # the data properly we need them to be numbered. an exercise
             # represents a group of either hand motions, funcitonal motions, or
@@ -272,7 +284,7 @@ class dataset(object):
         res = loadmat(path)
         data = []
         # imu data
-        imu = res["acc"].copy()
+        # imu = res["acc"].copy()
         # repetition labeled by a machine (more accurate labels, this is what we
         # will use to split the data by)
         rep = res["rerepetition"].copy()
@@ -307,7 +319,7 @@ class dataset(object):
         data = []
         labs = []
         reps = []
-        imu = []
+        # imu = []
         # for i in range(1, 4):
         for i in range(1, 10):
 
@@ -324,7 +336,7 @@ class dataset(object):
         self.emg = []
         self.labels = []
         self.repetition = []
-        self.imu = []
+        # self.imu = []
 
         for e in self.exercises:
             # In the papers the exercises are lettered not numbered, but to load
@@ -336,7 +348,7 @@ class dataset(object):
             self.emg += emg
             self.labels += lab
             self.repetition += rep
-            self.imu += imu
+            # self.imu += imu
         print(f'read {sum([x.shape[0] for x in self.emg])} records')
 
     def process_data(self):
@@ -348,13 +360,13 @@ class dataset(object):
 
         self.flat = [self.emg, self.labels, self.repetition, self.imu]
         self.emg = [window_roll(x, self.step, self.window) for x in self.emg]
-        self.imu = [window_roll(x, self.step, self.window) for x in self.imu]
+        # self.imu = [window_roll(x, self.step, self.window) for x in self.imu]
         self.labels = [window_roll(x, self.step, self.window) for x in self.labels]
         self.repetition = [window_roll(x, self.step, self.window) for x in self.repetition]
 
         # reshape the data to have the axes in the proper order
         self.emg = np.moveaxis(np.concatenate(self.emg, axis=0), 2, 1)
-        self.imu = np.moveaxis(np.concatenate(self.imu, axis=0), 2, 1)
+        # self.imu = np.moveaxis(np.concatenate(self.imu, axis=0), 2, 1)
         self.labels = np.moveaxis(np.concatenate(self.labels, axis=0), 2, 1)[..., -1]
         self.repetition = np.moveaxis(np.concatenate(self.repetition, axis=0), 2, 1)[..., -1]
 
@@ -371,7 +383,7 @@ class dataset(object):
 
 
         self.emg = self.emg[no_leaks, :, :]
-        self.imu = self.imu[no_leaks, :, :]
+        # self.imu = self.imu[no_leaks, :, :]
         self.labels = self.labels[no_leaks, :]
         self.repetition = self.repetition[no_leaks, :]
 
@@ -384,7 +396,7 @@ class dataset(object):
         self.labels = first_appearance(self.labels)
         self.repetition = first_appearance(self.repetition)
         self.emg = self.emg.astype(np.float16)
-        self.imu = self.imu.astype(np.float16)
+        # self.imu = self.imu.astype(np.float16)
 
 
 
