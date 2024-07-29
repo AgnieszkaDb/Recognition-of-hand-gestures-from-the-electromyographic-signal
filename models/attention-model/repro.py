@@ -19,21 +19,16 @@ from optimizers import Ranger
 import losses as l
 import callbacks as cb
 from layers import Attention, LayerNormalization
-from data import dataset, nina1_dataset
+from data import dataset, nina1_dataset, dataset_without_imu
 from generator import generator
 
 imu = False
 if sys.argv and sys.argv[-1]=='imu':
     imu = True
 
-# download the data
-if "ninaPro" not in listdir():
-    system('wget -c https://www.dropbox.com/s/kxrqhqhcz367v77/nina.tar.gz?dl=1 -O - | tar -xz')
-
 # read in the data
-
-# data = nina1_dataset("/home/rd/aga_wsl/magisterka/data")
-data = dataset("./ninaPro")
+data = dataset_without_imu("../../data")
+# data = dataset("./ninaPro")
 
 reps = np.unique(data.repetition)
 print(reps)
@@ -97,9 +92,9 @@ model.compile(Ranger(learning_rate=1e-3), loss=loss, metrics=["accuracy"])
 
 print(model.summary())
 
-model.fit(
+history = model.fit(
     train,
-    epochs=55,
+    epochs=2,
     validation_data=validation,
     callbacks=[
         ModelCheckpoint(
@@ -113,8 +108,31 @@ model.fit(
     shuffle = False,
 )
 
+train_loss = history.history['loss']
+train_accuracy = history.history['accuracy']
+val_loss = history.history['val_loss']
+val_accuracy = history.history['val_accuracy']
+
+np.save('history/train_loss.npy', train_loss)
+np.save('history/train_accuracy.npy', train_accuracy)
+np.save('history/val_loss.npy', val_loss)
+np.save('history/val_accuracy.npy', val_accuracy)
+
+def get_predictions_and_labels(model, test):
+    y_pred_probs = model.predict(test)
+    y_pred = np.argmax(y_pred_probs, axis=1)
+    y_test = np.concatenate([y for x, y in test], axis=0)
+    return y_pred, y_test
 
 model.evaluate(validation)
 model.evaluate(test)
+
+y_pred, y_test = get_predictions_and_labels(model, test)
+
+np.save('history/y_pred.npy', y_pred)
+np.save('history/y_test.npy', y_test)
+
+print("y_pred shape:", y_pred.shape)
+print("y_test shape:", y_test.shape)
 
 

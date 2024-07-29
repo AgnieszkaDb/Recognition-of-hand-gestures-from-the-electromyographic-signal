@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras.models import Sequential
@@ -13,7 +14,7 @@ y = data['class'].values  # Labels
 y = y - 1 # Relabel from 1-52 to 0-51
 
 X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+X_val, X_test, y_val, y_test_s = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
@@ -22,7 +23,7 @@ X_test = scaler.transform(X_test)
 
 y_train = to_categorical(y_train, num_classes=52)
 y_val = to_categorical(y_val, num_classes=52)
-y_test = to_categorical(y_test, num_classes=52)
+y_test = to_categorical(y_test_s, num_classes=52)
 
 model = Sequential([
     Dense(128, activation='relu', input_shape=(X_train.shape[1],)),
@@ -32,9 +33,46 @@ model = Sequential([
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_val, y_val))
+history = model.fit(X_train, y_train, epochs=2, batch_size=32, validation_data=(X_val, y_val))
+# history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_val, y_val))
+
+# Extract training and validation metrics
+train_loss = history.history['loss']
+train_accuracy = history.history['accuracy']
+val_loss = history.history['val_loss']
+val_accuracy = history.history['val_accuracy']
+
+# Save the metrics to files
+np.save('../history/train_loss.npy', train_loss)
+np.save('../history/train_accuracy.npy', train_accuracy)
+np.save('../history/val_loss.npy', val_loss)
+np.save('../history/val_accuracy.npy', val_accuracy)
+
+# Evaluate model on validation and test sets
+model.evaluate(X_val, y_val)
+model.evaluate(X_test, y_test)
+print(y_test_s)
+# Function to get predictions and true labels
+def get_predictions_and_labels(model, test):
+    y_pred_probs = model.predict(test)
+    y_pred = np.argmax(y_pred_probs, axis=1)
+
+    return y_pred, y_test
+
+# Obtain predictions and true labels
+y_pred, y_test = get_predictions_and_labels(model, X_test)
+
+# Save y_pred and y_test to files
+np.save('../history/y_pred.npy', y_pred)
+np.save('../history/y_test.npy', y_test_s)
+
+# Print shapes to verify
+print("y_pred shape:", y_pred.shape)
+print("y_test shape:", y_test_s.shape)
+
+
 
 # test_loss, test_acc = model.evaluate(X_test, y_test)
 # print(f'Test accuracy: {test_acc:.3f}')
 
-model.save('/models/baseline_model.h5')
+model.save('baseline_model.h5')
