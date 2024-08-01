@@ -7,6 +7,11 @@ __pycache__/
 ./models/javier/E:/jupyter notebook/jupyter notebook/me/vlog.12.5.data-00000-of-00001
 Recognition-of-hand-gestures-from-the-electromyographic-signal/models/javier/LSTM_cnn_inception.ipynb
 
+# big files
+*.h5
+*.npy
+*.png
+
 # csv
 *.csv
 
