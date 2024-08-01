@@ -118,6 +118,7 @@ np.save('history/train_accuracy.npy', train_accuracy)
 np.save('history/val_loss.npy', val_loss)
 np.save('history/val_accuracy.npy', val_accuracy)
 
+
 def get_predictions_and_labels(model, test):
     y_pred_probs = model.predict(test)
     y_pred = np.argmax(y_pred_probs, axis=1)
