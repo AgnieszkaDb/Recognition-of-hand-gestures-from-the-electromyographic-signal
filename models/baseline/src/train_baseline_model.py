@@ -36,7 +36,6 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 history = model.fit(X_train, y_train, epochs=2, batch_size=32, validation_data=(X_val, y_val))
 # history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_val, y_val))
 
-# Extract training and validation metrics
 train_loss = history.history['loss']
 train_accuracy = history.history['accuracy']
 val_loss = history.history['val_loss']
@@ -48,25 +47,20 @@ np.save('../history/train_accuracy.npy', train_accuracy)
 np.save('../history/val_loss.npy', val_loss)
 np.save('../history/val_accuracy.npy', val_accuracy)
 
-# Evaluate model on validation and test sets
 model.evaluate(X_val, y_val)
 model.evaluate(X_test, y_test)
-print(y_test_s)
-# Function to get predictions and true labels
+
 def get_predictions_and_labels(model, test):
     y_pred_probs = model.predict(test)
     y_pred = np.argmax(y_pred_probs, axis=1)
 
     return y_pred, y_test
 
-# Obtain predictions and true labels
-y_pred, y_test = get_predictions_and_labels(model, X_test)
+y_pred, _ = get_predictions_and_labels(model, X_test)
 
-# Save y_pred and y_test to files
 np.save('../history/y_pred.npy', y_pred)
 np.save('../history/y_test.npy', y_test_s)
 
-# Print shapes to verify
 print("y_pred shape:", y_pred.shape)
 print("y_test shape:", y_test_s.shape)
 

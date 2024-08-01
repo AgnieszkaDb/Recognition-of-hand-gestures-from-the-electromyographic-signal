@@ -37,8 +37,11 @@ if __name__ == "__main__":
 
     directory = '../../data'
     pattern = r'E(\d+)\.mat$'
+    counter = 0
 
     for subject in tqdm(os.listdir(directory)):
+        if counter == 2:break
+        counter += 1
         for filename in (os.listdir(os.path.join(directory, subject))):
             if filename.endswith('.mat'):
                 file_path = os.path.join(directory, subject, filename)
@@ -55,4 +58,4 @@ if __name__ == "__main__":
                 final_database = pd.concat([final_database, sub_df], ignore_index=True, sort=False)
     final_database.sort_values(by='label')
     print(final_database.shape)
-    final_database.to_csv('processed_NinaDB1_try.csv', index=False) 
+    final_database.to_csv('processed_NinaDB1_tests.csv', index=False) 
