@@ -140,7 +140,7 @@ LOGGING_FILE_PREFIX = LOG + '_' + str(TIMESTAMP)
 LOGGING_TENSORBOARD_FILE = os.path.abspath('logs') + os.sep + 'tblogs' + os.sep + 'L_' + LOGGING_FILE_PREFIX
 LOGGING_FILE = os.path.abspath('logs') + os.sep + 'L_' + LOGGING_FILE_PREFIX + '.csv'
 METRICS_SAVE_FILE = os.path.abspath('metrics') + os.sep + 'M_' + LOGGING_FILE_PREFIX + '_{}.mat'.format(SUBJECT)
-MODEL_SAVE_FILE = os.path.abspath('models') + os.sep + 'M_' + LOGGING_FILE_PREFIX + '_{}.h5'.format(SUBJECT)
+# MODEL_SAVE_FILE = os.path.abspath('models') + os.sep + 'M_' + LOGGING_FILE_PREFIX + '_{}.h5'.format(SUBJECT)
 MODEL_BEST_SAVE_FILE = os.path.abspath('models') + os.sep + 'M_' + LOGGING_FILE_PREFIX + '_{}_BEST.h5'.format(SUBJECT)
 
 if os.path.isfile(LOGGING_FILE) is False:
@@ -183,9 +183,6 @@ preproc = Pipeline([
     ('normalize', pipelines.preprocessing.TrfNormalize())
 ])
 
-#preproc.fit(X_train, Y_train)
-#X_train = preproc.transform(X_train)
-#X_test = preproc.transform(X_test)
 
 # 2. AUGMENT
 x_temp = []
@@ -194,12 +191,7 @@ augment = Pipeline([
     ('jitter', pipelines.augmentation.TrfJitter(D_JITTER))
 ])
 
-# for _ in range(D_AUGMENT_FACTOR):
-#     x_temp.append(augment.transform(X_train))
 
-# print(f"Merge initial train and augmented")
-# X_train = np.concatenate([X_train, np.concatenate(x_temp)])
-# Y_train = np.concatenate([Y_train, np.tile(Y_train, D_AUGMENT_FACTOR)])
 
 print('len(X_train): {}\nlen(Y_train): {}'.format(len(X_train), len(Y_train)))
 
@@ -306,7 +298,7 @@ print(history.history.keys())
 #############################################################################
 # SAVE MODEL
 #############################################################################
-model.save(MODEL_SAVE_FILE)
+model.save("../../logs/Hilbert.keras")
 print("Saved model to disk")
 
 #############################################################################
@@ -330,47 +322,17 @@ cnf_matrix_frame = sklearn.metrics.confusion_matrix(y_test, y_test_pred)
 accuracy_vote, cnf_matrix_vote = evaluation.evaluate_vote(y_test, y_test_pred, r_test_segments)
 
 
-# ADDED
-train_loss = history.history['loss']
-train_accuracy = history.history['acc']
-val_loss = history.history['val_loss']
-val_accuracy = history.history['val_acc']
+history_data = {
+    'model_name': 'Hilbert',
+    'train_loss': [float(x) for x in history.history['loss']],
+    'train_accuracy': [float(x) for x in history.history['acc']],
+    'val_loss': [float(x) for x in history.history['val_loss']],
+    'val_accuracy': [float(x) for x in history.history['val_acc']],
+    'y_pred': y_test_pred.tolist(),
+    'y_test': y_test.tolist()
+}
 
-np.save('history/train_loss.npy', train_loss)
-np.save('history/train_accuracy.npy', train_accuracy)
-np.save('history/val_loss.npy', val_loss)
-np.save('history/val_accuracy.npy', val_accuracy)
-
-np.save('history/y_pred.npy', y_test_pred)
-np.save('history/y_test.npy', y_test)
-
-print("y_pred shape:", y_test_pred.shape)
-print("y_test shape:", y_test.shape)
+with open('../../logs/history_hilbert.json', 'w') as f:
+    json.dump(history_data, f)
 
 
-
-
-
-# evals['train_top_1_acc'] = history.history['top_1_accuracy']
-# evals['test_top_1_acc'] = history.history['val_top_1_accuracy']
-# evals['train_loss'] = history.history['loss']
-# evals['test_loss'] = history.history['val_loss']
-# evals['test_top_3_acc'] = history.history['val_top_3_accuracy']
-# evals['test_top_5_acc'] = history.history['val_top_5_accuracy']
-# evals['test_cm'] = cnf_matrix_frame
-# evals['test_cm_vote'] = cnf_matrix_vote
-# evals['test_vote_acc'] = accuracy_vote
-# evals['test_acc'] = test_accuracy
-# evals['test_pr'] = test_precision
-# evals['test_re'] = test_recall
-# evals['test_f1'] = test_f1
-
-# with open(LOGGING_FILE, 'a') as f:
-#     f.write('{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(
-#         SUBJECT, N_INPUT_SHAPE, len(X_train_segments), len(X_test_segments),
-#         evals['train_loss'], evals['train_top_1_acc'],
-#         evals['test_loss'], evals['test_top_1_acc'], evals['test_vote_acc'], evals['test_top_3_acc'], evals['test_top_5_acc'],
-#         evals['test_acc'], evals['test_pr'], evals['test_re'], evals['test_f1']
-#     ))
-
-# scipy.io.savemat(METRICS_SAVE_FILE.format(SUBJECT), evals)

@@ -1,5 +1,6 @@
 from os import system, listdir
 import sys
+import json
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import backend as K
@@ -108,34 +109,32 @@ history = model.fit(
     shuffle = False,
 )
 
-train_loss = history.history['loss']
-train_accuracy = history.history['accuracy']
-val_loss = history.history['val_loss']
-val_accuracy = history.history['val_accuracy']
-
-np.save('history/train_loss.npy', train_loss)
-np.save('history/train_accuracy.npy', train_accuracy)
-np.save('history/val_loss.npy', val_loss)
-np.save('history/val_accuracy.npy', val_accuracy)
-
-
 def get_predictions_and_labels(model, test):
     y_pred_probs = model.predict(test)
     y_pred = np.argmax(y_pred_probs, axis=1)
     y_test = np.concatenate([y for x, y in test], axis=0)
     return y_pred, y_test
 
-model.evaluate(validation)
-model.evaluate(test)
-
 y_pred, y_test = get_predictions_and_labels(model, test)
 y_test = np.argmax(y_test, axis=1)
 
+<<<<<<< Updated upstream:models/Attention-model/repro.py
+=======
+history_data = {
+    'model_name': 'Simple model of attention',
+    'train_loss': history.history['loss'],
+    'train_accuracy': history.history['accuracy'],
+    'val_loss': history.history['val_loss'],
+    'val_accuracy': history.history['val_accuracy'],
+    'y_pred': y_pred.tolist(),
+    'y_test': y_test.tolist()
+}
 
-np.save('history/y_pred.npy', y_pred)
-np.save('history/y_test.npy', y_test)
+with open('../../logs/history_attention.json', 'w') as f:
+    json.dump(history_data, f)
+>>>>>>> Stashed changes:models/attention-model/repro.py
 
-print("y_pred shape:", y_pred.shape)
-print("y_test shape:", y_test.shape)
+model.save('../../logs/attention.h5')
+
 
 

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tensorflow as tf #2.13
 import keras
+import json
 from tensorflow import keras
 from keras import optimizers
 import numpy as np
@@ -21,7 +22,7 @@ from tensorflow.keras.layers import Dense, Dropout, Flatten, Reshape
 from tensorflow.keras.models import Sequential,Model
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Reshape
 from tensorflow.keras.layers import Conv2D, MaxPooling2D,Activation
-from tensorflow import reshape
+from tensorflow import reshape 
 from keras import utils
 from tensorflow.keras.layers import Conv1D,Conv2D, MaxPooling1D,AveragePooling1D
 from tensorflow.keras.layers import Input, LocallyConnected1D
@@ -183,31 +184,6 @@ def step_decay(epoch):
   return lrate
 lrate = tf.keras.callbacks.LearningRateScheduler(step_decay)
 verbose, epochs, batch_size = 0, 2, 32
-
-# # from tensorflow.keras import optimizers
-# from tensorflow.keras.layers import LSTM
-# from tensorflow.keras.layers import GRU,SimpleRNN
-# from tensorflow.keras.layers import TimeDistributed
-# from sklearn import metrics
-# from sklearn.metrics import classification_report
-# from sklearn import preprocessing
-# from tensorflow.keras.models import Sequential,Model
-# from tensorflow.keras.layers import Dense, Dropout, Flatten, Reshape
-# from tensorflow.keras.models import Sequential,Model
-# from tensorflow.keras.layers import Dense, Dropout, Flatten, Reshape
-# from tensorflow.keras.layers import Conv2D, MaxPooling2D,Activation
-# from tensorflow import reshape
-# from keras import utils
-# from tensorflow.keras.layers import Conv1D,Conv2D, MaxPooling1D,AveragePooling1D
-# from tensorflow.keras.layers import Input, LocallyConnected1D
-# from tensorflow.keras.layers import SeparableConv1D, Bidirectional
-# from tensorflow.keras.layers import LocallyConnected2D
-# from tensorflow.keras.layers import ZeroPadding2D,ZeroPadding1D, MaxPooling2D, Bidirectional
-# from tensorflow.keras.regularizers import l2,l1
-# from tensorflow.keras.layers import BatchNormalization
-# from tensorflow.keras.callbacks import CSVLogger,LearningRateScheduler
-# from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
-
 
 
 
@@ -375,14 +351,14 @@ lrate = LearningRateScheduler(update_lr)
 from keras.callbacks import CSVLogger
 
 
-csv_logger = CSVLogger('/home/agn/studia/magisterka/Recognition-of-hand-gestures-from-the-electromyographic-signal/models/javier/vlog.10.5', append=True, separator=';')
+# csv_logger = CSVLogger('/home/agn/studia/magisterka/Recognition-of-hand-gestures-from-the-electromyographic-signal/models/javier/vlog.10.5', append=True, separator=';')
 
 history = combined_model.fit(
     {'feature_input': X_train_feature, 'raw_input': x_train},
     Y_train,
     epochs=epochs,
     batch_size=batch_size,
-    callbacks=[csv_logger, checkpoint_callback, lrate, early],
+    callbacks=[checkpoint_callback, lrate, early],
     validation_data=({'feature_input': X_test_feature, 'raw_input': x_test}, Y_test),
     verbose=1
 )
@@ -395,18 +371,7 @@ print('epoch_number',best_index+1)
 
 import datetime
 print('train accuracy and validation accuracy', history.history['accuracy'][best_index], history.history['val_accuracy'][best_index])
-# model.load_weights(checkpoint_filepath) 
 
-# ADDED
-train_loss = history.history['loss']
-train_accuracy = history.history['accuracy']
-val_loss = history.history['val_loss']
-val_accuracy = history.history['val_accuracy']
-
-np.save('history/train_loss.npy', train_loss)
-np.save('history/train_accuracy.npy', train_accuracy)
-np.save('history/val_loss.npy', val_loss)
-np.save('history/val_accuracy.npy', val_accuracy)
 
 # ADDED
 def get_predictions_and_labels(model, test):
@@ -417,223 +382,24 @@ def get_predictions_and_labels(model, test):
 
 y_pred = get_predictions_and_labels(combined_model, {'feature_input': X_test_feature, 'raw_input': x_test})
 Y_test = np.argmax(Y_test, axis=1)
+<<<<<<< Updated upstream:models/LSTM-CNN-Inception/LSTM_cnn_inception.py
 
-
-np.save('history/y_pred.npy', y_pred)
-np.save('history/y_test.npy', Y_test)
-
-print("y_pred shape:", y_pred.shape)
-print("y_test shape:", Y_test.shape)
-
-
-# print(datetime.datetime.now())
-# # _, testaccuracy = combined_model.evaluate(x_test,Y_test, batch_size=batch_size, verbose=1)
-# print(datetime.datetime.now())
-# # print('val_accuracy',val_accuracy)
-# # test_acc.append(testaccuracy)
-
-# combined_model.save('E:/jupyter notebook/10.5')
-
-# for i in history.history:
-#     print("history",i)
-# # facecolor='black'
-# DB1a=plt.figure(figsize=(10, 8),edgecolor='black')
-# # ax=figDB4.add_axes(("left", "bottom", "width", "height"))
-# ax= DB1a.add_axes((1,1,1,1))
-# ax.spines["top"].set_position(("outward", 0))
-# ax.spines["bottom"].set_position(("data", 0))
-# ax.spines["left"].set_position(("axes", 0))
-# ax.spines["right"].set_position(("outward", 0))
-
-# ax.spines["top"].set_color("black")
-# ax.spines["left"].set_color("black")
-# ax.spines["right"].set_color("black")
-# ax.spines["bottom"].set_color("black")
-
-# plt.plot(history.history['accuracy'], 'r', label='Accuracy of training data')
-# plt.plot(history.history['val_accuracy'], 'b', label='Accuracy of validation data')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Training Epoch')
-
-# # plt2.ylim(0)
-# # plt2.rcParams['figure.facecolor'] = 'white'
-
-# # ax = fig.add_axes((left, bottom, width, height))
-# ax.set(facecolor="white")
-# # ax.patch.set_alpha(1.0)
-# plt.ylim(0)
-# plt.legend()
-# plt.show()
+=======
+>>>>>>> Stashed changes:models/javier/LSTM_cnn_inception.py
 
 
 
-# figDB1=plt.figure(figsize=(10, 8),edgecolor='black')
-# font = {'family' : 'Aril',
-#         'weight' : 'bold',
-#         'size'   : 28}
+history_data = {
+    'model_name': 'LSTM CNN Inception',
+    'train_loss': history.history['loss'],
+    'train_accuracy': history.history['accuracy'],
+    'val_loss': history.history['val_loss'],
+    'val_accuracy': history.history['val_accuracy'],
+    'y_pred': y_pred.tolist(),
+    'y_test': Y_test.tolist()
+}
 
-# plt.rc('font', **font)
+with open('../../logs/history_LSTM-CNN.json', 'w') as f:
+    json.dump(history_data, f)
 
-# # SMALL_SIZE = 12
-# # MEDIUM_SIZE = 14
-# # BIGGER_SIZE = 18
-
-# ax.spines["top"].set_linewidth(3)
-# ax.spines["top"].set_linestyle("-")
-# ax.spines["bottom"].set_linewidth(3)
-# ax.spines["bottom"].set_linestyle("-")
-# ax.spines["left"].set_linewidth(3)
-# ax.spines["left"].set_linestyle("-")
-# ax.spines["right"].set_linewidth(3)
-# ax.spines["right"].set_linestyle("-")
-# # ax.spines["bottom"].set_capstyle("round")
-
-# # plt2.rcParams['figure.facecolor'] = 'white'
-# plt.plot(history.history['loss'], 'r-', linewidth=3, label='Loss on training data')
-# plt.plot(history.history['val_loss'], 'b-', linewidth=3, label='Loss on validation data')
-# # plt.title('Loss curve for NinaPro DB1',fontsize=18, weight = 'bold')
-
-# plt.ylabel('Loss',fontsize=30, weight = 'bold')
-# plt.xlabel('no. of training epochs',fontsize=30, weight = 'bold')
-# # plt2.ylim(0)
-# # plt2.rcParams['figure.facecolor'] = 'white'
-
-# # ax = fig.add_axes((left, bottom, width, height))
-# ax.set(facecolor="white")
-# # ax.patch.set_alpha(1.0)
-# plt.ylim(0)
-# plt.legend()
-# plt.show()
-
-
-# from sklearn.preprocessing import LabelBinarizer
-# from sklearn.metrics import classification_report, confusion_matrix
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import numpy as np
-
-# # Function to show confusion matrix
-# def show_confusion_matrix(validations, predictions, labels):
-#     matrix = confusion_matrix(validations, predictions)
-#     plt.figure(figsize=(20, 16))
-#     sns.set(font_scale=0.8)
-#     # Adjust the figure size and layout
-#     plt.subplots_adjust(left=0.2, bottom=0.25)
-
-#     sns.heatmap(matrix,
-#                 cmap='coolwarm',
-#                 linecolor='white',
-#                 linewidths=1,
-#                 xticklabels=labels,
-#                 yticklabels=labels,
-#                 annot=True,
-#                 fmt='d')
-
-#     # Rotate axis labels for better readability
-#     num_rows = len(labels)
-#     xtick_positions = np.arange(num_rows) + 0.7
-#     plt.xticks(xtick_positions,labels,rotation=0, ha='right')
-#     num_rows = len(labels)
-#     ytick_positions = np.arange(num_rows) + 0.5
-#     plt.yticks(ytick_positions, labels, rotation=0)
-
-#     # Adjust font size of x-axis and y-axis labels
-#     plt.xticks(fontsize=16)
-#     plt.yticks(fontsize=16)
-
-    
-
-#     plt.title('Confusion Matrix', fontsize=20)
-#     plt.ylabel('True Label', fontsize=20)
-#     plt.xlabel('Predicted Label', fontsize=20)
-
-#     # Adjust layout to prevent overlapping
-#     plt.tight_layout()
-
-#     plt.show()
-
-# # Assuming Y_train is your true labels for the training set
-
-# # Transform true labels to binary indicator format
-# label_binarizer = LabelBinarizer()
-# Y_train_binary = label_binarizer.fit_transform(Y_train)
-
-# # Make predictions on the training set
-# y_pred_train = combined_model.predict({'feature_input': X_train_feature, 'raw_input': x_train})
-# max_y_pred_train = np.argmax(y_pred_train, axis=1)
-
-# # Display confusion matrix for the training set
-# show_confusion_matrix(np.argmax(Y_train_binary, axis=1), max_y_pred_train, labels=[' 0', '1', '2', '3', '4', '5', '6','7', '8','9','10','11','12','13','14','15','16','17','18','19','20','21','22',
-#                                                                                   '23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47',
-#                                                                                   '48','49','50','51',])
-
-# # Print classification report for the training set
-# print("Classification Report (Training Set):")
-# print(classification_report(np.argmax(Y_train_binary, axis=1), max_y_pred_train))
-
-
-# from sklearn.preprocessing import LabelBinarizer
-# from sklearn.metrics import classification_report, confusion_matrix
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import numpy as np
-
-# # Function to show confusion matrix
-# def show_confusion_matrix(validations, predictions, labels):
-#     matrix = confusion_matrix(validations, predictions)
-#     plt.figure(figsize=(20, 16))
-#     sns.set(font_scale=0.8)
-#     # Adjust the figure size and layout
-#     plt.subplots_adjust(left=0.2, bottom=0.25)
-
-#     sns.heatmap(matrix,
-#                 cmap='coolwarm',
-#                 linecolor='white',
-#                 linewidths=1,
-#                 xticklabels=labels,
-#                 yticklabels=labels,
-#                 annot=True,
-#                 fmt='d')
-
-#     # Rotate axis labels for better readability
-#     num_rows = len(labels)
-#     xtick_positions = np.arange(num_rows) + 0.7
-#     plt.xticks(xtick_positions,labels,rotation=0, ha='right')
-#     num_rows = len(labels)
-#     ytick_positions = np.arange(num_rows) + 0.5
-#     plt.yticks(ytick_positions, labels, rotation=0)
-
-#     # Adjust font size of x-axis and y-axis labels
-#     plt.xticks(fontsize=16)
-#     plt.yticks(fontsize=16)
-
-    
-
-#     plt.title('Confusion Matrix', fontsize=20)
-#     plt.ylabel('True Label', fontsize=20)
-#     plt.xlabel('Predicted Label', fontsize=20)
-
-#     # Adjust layout to prevent overlapping
-#     plt.tight_layout()
-
-#     plt.show()
-
-# # Assuming Y_train is your true labels for the training set
-
-# # Transform true labels to binary indicator format
-# label_binarizer = LabelBinarizer()
-# Y_test_binary = label_binarizer.fit_transform(Y_test)
-
-# # Make predictions on the training set
-# y_pred_test = combined_model.predict({'feature_input': X_test_feature, 'raw_input': x_test})
-# max_y_pred_test = np.argmax(y_pred_test, axis=1)
-
-# # Display confusion matrix for the training set
-# show_confusion_matrix(np.argmax(Y_test_binary, axis=1), max_y_pred_test, labels=[' 0', '1', '2', '3', '4', '5', '6','7', '8','9','10','11','12','13','14','15','16','17','18','19','20','21','22',
-#                                                                                   '23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47',
-#                                                                                   '48','49','50','51',])
-
-# # Print classification report for the training set
-# print("Classification Report (Vailding Set):")
-# print(classification_report(np.argmax(Y_test_binary, axis=1), max_y_pred_test))
+combined_model.save('../../logs/LSTM-CNN-inception.keras')

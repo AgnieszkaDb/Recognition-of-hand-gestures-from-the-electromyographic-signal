@@ -9,6 +9,7 @@ Recognition-of-hand-gestures-from-the-electromyographic-signal/models/javier/LST
 
 # big files
 *.h5
+*.keras
 *.npy
 *.keras
 *.png

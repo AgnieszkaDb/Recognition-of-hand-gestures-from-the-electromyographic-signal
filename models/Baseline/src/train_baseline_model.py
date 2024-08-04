@@ -1,10 +1,13 @@
-import pandas as pd
-import numpy as np
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.utils import to_categorical
+
+import json
+import pandas as pd
+import numpy as np
 
 data_path = 'processed_NinaDB1.csv'  
 data = pd.read_csv(data_path)
@@ -36,37 +39,24 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 history = model.fit(X_train, y_train, epochs=2, batch_size=32, validation_data=(X_val, y_val))
 # history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_val, y_val))
 
-train_loss = history.history['loss']
-train_accuracy = history.history['accuracy']
-val_loss = history.history['val_loss']
-val_accuracy = history.history['val_accuracy']
-
-# Save the metrics to files
-np.save('../history/train_loss.npy', train_loss)
-np.save('../history/train_accuracy.npy', train_accuracy)
-np.save('../history/val_loss.npy', val_loss)
-np.save('../history/val_accuracy.npy', val_accuracy)
-
-model.evaluate(X_val, y_val)
-model.evaluate(X_test, y_test)
-
 def get_predictions_and_labels(model, test):
     y_pred_probs = model.predict(test)
     y_pred = np.argmax(y_pred_probs, axis=1)
-
     return y_pred, y_test
 
 y_pred, _ = get_predictions_and_labels(model, X_test)
 
-np.save('../history/y_pred.npy', y_pred)
-np.save('../history/y_test.npy', y_test_s)
+history_data = {
+    'model_name': 'Baseline',
+    'train_loss': history.history['loss'],
+    'train_accuracy': history.history['accuracy'],
+    'val_loss': history.history['val_loss'],
+    'val_accuracy': history.history['val_accuracy'],
+    'y_pred': y_pred.tolist(),
+    'y_test': np.argmax(y_test, axis=1).tolist()
+}
 
-print("y_pred shape:", y_pred.shape)
-print("y_test shape:", y_test_s.shape)
+with open('../../../logs/history_baseline.json', 'w') as f:
+    json.dump(history_data, f)
 
-
-
-# test_loss, test_acc = model.evaluate(X_test, y_test)
-# print(f'Test accuracy: {test_acc:.3f}')
-
-model.save('baseline_model.h5')
+model.save('../../../logs/baseline_model.keras')
