@@ -1,154 +1,129 @@
-import torch
-from tqdm import tqdm
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
-import torch.optim as optim
+import tensorflow as tf
+from tensorflow.keras import layers, models, optimizers
 import scipy.io as scio
-import h5py
 import numpy as np
 
-num_epochs = 10
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(f"The device in use: {device}")
-batch_size = 32
+# Load Data
+def load_data():
+    dataFile = 'X_train.mat'
+    X_train = scio.loadmat(dataFile)['X_train']
+    dataFile = 'X_test.mat'
+    X_test = scio.loadmat(dataFile)['X_test']
+    dataFile = 'y_train.mat'
+    y_train = scio.loadmat(dataFile)['y_train'] - 1
+    y_train = np.transpose(y_train)
+    dataFile = 'y_test.mat'
+    y_test = scio.loadmat(dataFile)['y_test'] - 1
+    y_test = np.transpose(y_test)
+    return X_train, y_train, X_test, y_test
 
-def accuracy(prediction, labels):
-    pred_y = torch.max(prediction, 1)[1].to('cpu').numpy()
-    acc = (pred_y == labels.to('cpu').numpy()).sum() / len(labels.to('cpu').numpy())
-    return acc
+X_train, y_train, X_test, y_test = load_data()
 
-def LASTaccuracy(prediction, labels):
-    prediction = torch.unsqueeze(prediction, dim=0)
-    pred_y = torch.max(prediction, 1)[1].to('cpu').numpy()
-    labels = labels.to('cpu').numpy()
-    correct = (pred_y == labels).sum()
-    return correct
-
-class Set(Dataset):
-    def __init__(self, X, y):
-        self.X, self.y = X, y
-
-    def __getitem__(self, index):
-        return self.X[index], self.y[index]
-
-    def __len__(self):
-        return len(self.X)
-
+# Normalize the data
 def minmaxscaler(data):
     min = np.amin(data)
     max = np.amax(data)
     return (data - min) / (max - min)
 
-dataFile = 'X_train.mat'
-X = scio.loadmat(dataFile)['X_train']
-X_train=torch.from_numpy(X)
-print(X_train.shape)
+X_train = minmaxscaler(X_train)
+X_test = minmaxscaler(X_test)
 
+# Convert to TensorFlow datasets
+train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 
-dataFile = 'X_test.mat'
-X = scio.loadmat(dataFile)['X_test']
-X_test=torch.from_numpy(X)
-print(X_test.shape)
+# Batch the datasets
+batch_size = 32
+train_dataset = train_dataset.batch(batch_size).shuffle(len(X_train))
+test_dataset = test_dataset.batch(batch_size)
 
-dataFile = 'y_test.mat'
-y = scio.loadmat(dataFile)['y_test']
-y_test=torch.from_numpy(y) - 1
-y_test = y_test.transpose(0, 1)
-print(y_test.shape)
-
-
-dataFile = 'y_train.mat'
-y = scio.loadmat(dataFile)['y_train']
-y_train=torch.from_numpy(y) - 1
-y_train = y_train.transpose(0, 1)
-print(y_train.shape)
-
-
-train_dataset = Set(X_train, y_train)
-test_dataset = Set(X_test, y_test)
-print(len(test_dataset))
-
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
-
-class PointNet(nn.Module):
+# Define the Model
+class PointNet(tf.keras.Model):
     def __init__(self):
         super(PointNet, self).__init__()
-        self.conv1 = torch.nn.Conv1d(10, 256, 1)
-        self.conv2 = torch.nn.Conv1d(256, 512, 1)
-        self.conv3 = torch.nn.Conv1d(512, 1024, 1)
-        self.bn1 = nn.BatchNorm1d(256)
-        self.bn2 = nn.BatchNorm1d(512)
-        self.bn3 = nn.BatchNorm1d(1024)
-        self.lin = nn.Sequential(
-            nn.Linear(1024, 52),
-        )
+        self.conv1 = layers.Conv1D(256, 1, activation='relu')
+        self.conv2 = layers.Conv1D(512, 1, activation='relu')
+        self.conv3 = layers.Conv1D(1024, 1, activation='relu')
+        self.bn1 = layers.BatchNormalization()
+        self.bn2 = layers.BatchNormalization()
+        self.bn3 = layers.BatchNormalization()
+        self.lin = layers.Dense(52)
 
-    def forward(self, x):
-        x1 = F.relu(self.bn1(self.conv1(x)))
-        x1 = F.relu(self.bn2(self.conv2(x1)))
-        x1 = self.bn3(self.conv3(x1))
-        x1 = torch.max(x1, 2, keepdim=True)[0]
-        x1 = x1.view(-1, 1024)
-        x1 = torch.unsqueeze(x1, dim=2)
+    def call(self, x):
+        x = tf.transpose(x, [0, 2, 1])  # Transpose to match the input dimensions expected by Conv1D
+        x1 = self.conv1(x)
+        x1 = self.bn1(x1)
+        x1 = self.conv2(x1)
+        x1 = self.bn2(x1)
+        x1 = self.conv3(x1)
+        x1 = self.bn3(x1)
+        x1 = tf.reduce_max(x1, axis=1)  # Reduce max along the correct axis to match PyTorch behavior
+        
+        # Processing a second pathway (same as first pathway for now)
+        x2 = self.conv1(x)
+        x2 = self.bn1(x2)
+        x2 = self.conv2(x2)
+        x2 = self.bn2(x2)
+        x2 = self.conv3(x2)
+        x2 = self.bn3(x2)
+        x2 = tf.reduce_max(x2, axis=1)  # Reduce max along the correct axis
 
-        x2 = F.relu(self.bn1(self.conv1(x)))
-        x2 = F.relu(self.bn2(self.conv2(x2)))
-        x2 = self.bn3(self.conv3(x2))
-        x2 = torch.max(x2, 2, keepdim=True)[0]
-        x2 = x2.view(-1, 1024)
-        x2 = torch.unsqueeze(x2, dim=2)
-
-        x = torch.cat((x1, x2), dim=2)
-        x = torch.max(x, dim=2, keepdim=True)[0]
-        x = torch.squeeze(x)
+        x = tf.concat([x1, x2], axis=1)  # Concatenate along the feature dimension
         x = self.lin(x)
         return x
 
-nets = PointNet()
-nets.to(device)
+# Instantiate the model
+model = PointNet()
 
-lossfun = nn.CrossEntropyLoss()
-optimizer = optim.Adam(nets.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
+# Compile the model
+model.compile(optimizer=optimizers.Adam(learning_rate=0.001, beta_1=0.9,
+                                        beta_2=0.999, epsilon=1e-08),
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
 
-if_train = True
+# Train the model
+history = model.fit(train_dataset, epochs=2, validation_data=test_dataset)
 
-if if_train:
-    for epoch in range(num_epochs):
-        print(f"epoch = {epoch}")
-        count = 0
-        for batch_id, (data, target) in enumerate(train_loader):
-            data = data.to(device).float()
-            target = target.to(device).long().squeeze()
-            nets.train()
-            output = nets(data)
-            loss = lossfun(output, target)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+# Save the model
+model.save("model.keras")
 
-            if batch_id % 100 == 0:
-                nets.eval()
-                for data, target in test_loader:
-                    target = target.to(device).long().squeeze()
-                    data = data.to(device).float()
-                    output = nets(data)
-                    count += LASTaccuracy(output, target)
-                print(f"epoch = {epoch}, loss_train = {np.round(loss.item(), 4)}, accuracy = {np.round(count / len(test_dataset), 4)}")
+# # Evaluate the model on the test data
+# test_loss, test_acc = model.evaluate(test_dataset)
+# print(f"Test accuracy: {test_acc:.4f}")
 
-torch.save(nets.state_dict(), "model.pkl")
 
-new_model = PointNet()
-new_model.to(device)
-new_model.load_state_dict(torch.load("model.pkl"))
+train_loss = history.history['loss']
+train_accuracy = history.history['accuracy']
+val_loss = history.history['val_loss']
+val_accuracy = history.history['val_accuracy']
 
-count = 0
-new_model.eval()
-for data, target in test_loader:
-    target = target.to(device).long().squeeze()
-    data = data.to(device).float()
-    output = new_model(data)
-    count += LASTaccuracy(output, target)
+np.save('history/train_loss.npy', train_loss)
+np.save('history/train_accuracy.npy', train_accuracy)
+np.save('history/val_loss.npy', val_loss)
+np.save('history/val_accuracy.npy', val_accuracy)
 
-print(count / len(test_dataset))
+def get_predictions_and_labels(model, test):
+    y_pred_probs = model.predict(test)
+    print(f'y_pred_probs{ y_pred_probs}')
+    y_pred = np.argmax(y_pred_probs, axis=1)
+    y_test = np.concatenate([y for x, y in test], axis=0)
+    print(f'y_test: {y_test} \n y_pred: {y_pred}')
+    return y_pred, y_test
+
+y_pred, y_test = get_predictions_and_labels(model, test_dataset)
+# y_test = np.argmax(y_test, axis=1)
+
+
+np.save('history/y_pred.npy', y_pred)
+np.save('history/y_test.npy', y_test)
+
+print("y_pred shape:", y_pred.shape)
+print("y_test shape:", y_test.shape)
+
+
+
+
+
+
+
+
