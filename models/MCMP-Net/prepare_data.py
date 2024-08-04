@@ -12,13 +12,15 @@ cols = 11
 def load_and_aggregate_data(root_dir):
     aggregated_data = []
 
+    counter = 0
     for patient in tqdm(os.listdir(root_dir)):
         patient_dir = os.path.join(root_dir, patient)
-
+        if counter == 2:break
+        counter += 1
         if os.path.isdir(patient_dir):
             for gesture in os.listdir(patient_dir):
                 gesture_dir = os.path.join(patient_dir, gesture)
-                if gesture == "gesture-00": break
+                if gesture == "gesture-00": continue
 
                 if os.path.isdir(gesture_dir):
                     for rep_file in os.listdir(gesture_dir):
