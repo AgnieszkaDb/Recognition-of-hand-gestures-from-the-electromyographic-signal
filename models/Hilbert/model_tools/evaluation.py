@@ -189,7 +189,8 @@ def evaluate_vote(y_true, y_pred, reps):
     accuracy_vote = metrics.accuracy_score(y_true_vote, y_pred_vote)
     # print(cnf_matrix_vote)
     # print(accuracy_vote)
-    return accuracy_vote, cnf_matrix_vote
+    # return accuracy_vote, cnf_matrix_vote
+    return accuracy_vote, cnf_matrix_vote, y_true_vote, y_pred_vote
 
 
 def confidence_threshold_categorical_loss(threshold):
@@ -203,5 +204,24 @@ def confidence_threshold_categorical_loss(threshold):
         return loss
 
     return compute_loss
+
+
+
+
+
+
+def categorical_crossentropy_loss(y_true, y_pred):
+    """
+    Computes the standard categorical cross-entropy loss between the true labels and predicted labels.
+
+    Arguments:
+        y_true -- array-like, true labels in one-hot encoded format
+        y_pred -- array-like, predicted labels in the same format as y_true
+
+    Returns:
+        loss -- categorical cross-entropy loss
+    """
+    return K.categorical_crossentropy(y_true, y_pred)
+
 
 

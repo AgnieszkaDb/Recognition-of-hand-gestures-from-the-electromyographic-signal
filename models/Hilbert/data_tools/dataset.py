@@ -13,7 +13,7 @@ def load_dataset(input_directory, subject, classes, repetitions, rest_reps=None)
     n_classes = len(classes)
     subject = subject if isinstance(subject, list) else [subject]
 
-    for d in range(2):
+    for d in range(28):
         for label in classes:
             if label == 0:
                 rest_rep_groups = list(

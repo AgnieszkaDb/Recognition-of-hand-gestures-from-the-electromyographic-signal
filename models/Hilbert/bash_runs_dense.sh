@@ -48,7 +48,7 @@ BEST_CONFIG=4
 TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
 
 # Run experiments with different configurations
-run_batch_experiments 16 10 1 16 "none" 2 ""
+run_batch_experiments 16 10 1 16 "none" 30 ""
 # run_batch_experiments 4 4 10 16 "time" 60 ""
 # run_batch_experiments 4 4 16 16 "electrodes" 60 ""
 # run_batch_experiments 32 10 1 32 "none" 60 ""

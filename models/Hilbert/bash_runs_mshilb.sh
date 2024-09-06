@@ -24,7 +24,7 @@ run_experiment() {
 
     python3 run_experiment_hilbert.py --subject "$subject" --model "$model" \
         --timestamp "$TIMESTAMP" --log "$log_prefix" \
-        --include_rest_gesture --img_height "$img_height" --img_width "$img_width" --img_depth "$img_depth" \
+        --img_height "$img_height" --img_width "$img_width" --img_depth "$img_depth" \
         --window_size "$window_size" --window_step "$window_step" \
         --augment_jitter 25 --augment_mwrp 0.2 \
         --hilbert_type "$hilbert_type" \
@@ -51,7 +51,7 @@ run_batch_experiments() {
 BEST_CONFIG=0
 
 ## MSHILB Exps window 16 ###
-run_batch_experiments 4 4 10 16 "time" 60 0.3 1024 ""
+# run_batch_experiments 4 4 10 16 "time" 60 0.3 1024 ""
 run_batch_experiments 4 4 16 16 "electrodes" 30 0.3 1024 ""
-run_batch_experiments 8 8 10 32 "time" 60 0.3 1024 ""
-run_batch_experiments 4 4 64 64 "electrodes" 30 0.3 1024 ""
+# run_batch_experiments 8 8 10 32 "time" 60 0.3 1024 ""
+# run_batch_experiments 4 4 64 64 "electrodes" 30 0.3 1024 ""
