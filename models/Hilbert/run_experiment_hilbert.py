@@ -214,6 +214,19 @@ else:
     X_train_segments, Y_train_segments = X_train, Y_train
     X_test_segments, Y_test_segments, r_test_segments = X_test, Y_test, r_test
 
+
+
+import numpy as np
+
+# Save r_test_segments as a .npy file
+np.save('r_test_segments.npy', r_test_segments)
+print('test segments saved')
+
+# To load the data back later
+# r_test_segments = np.load('r_test_segments.npy')
+
+
+
 # 4. HILBERT CURVE
 if D_HILBERT_MAP not in ("none", "None"):
     axis = 0 if 'time' in D_HILBERT_MAP else 1
@@ -319,8 +332,12 @@ test_f1 = sklearn.metrics.f1_score(y_test, y_test_pred, average='weighted')
 # C_{i, j} is equal to the number of observations known to be in group i but predicted to be in group j.
 cnf_matrix_frame = sklearn.metrics.confusion_matrix(y_test, y_test_pred)
 
-accuracy_vote, cnf_matrix_vote = evaluation.evaluate_vote(y_test, y_test_pred, r_test_segments)
 
+import time
+start_time = time.time()
+accuracy_vote, cnf_matrix_vote = evaluation.evaluate_vote(y_test, y_test_pred, r_test_segments)
+duration = time.time() - start_time
+print(duration)
 
 history_data = {
     'model_name': 'Hilbert',

@@ -7,7 +7,7 @@ import tensorflow as tf
 def dot_product(x, kernel):
     return tf.tensordot(x, kernel, axes=1)
 
-class Attention(Layer):
+class Attention2(Layer):
     def __init__(self,
                  W_regularizer=None, b_regularizer=None,
                  W_constraint=None, b_constraint=None,
@@ -108,3 +108,47 @@ class Attention(Layer):
                     (input_shape[0], input_shape[1])]
         else:
             return input_shape[0], input_shape[-1]
+
+
+# class Attention(tf.keras.layers.Layer):
+#     def __init__(self, **kwargs):
+#         super(Attention2, self).__init__(**kwargs)
+#         # Initialization of parameters if any
+
+#     def call(self, inputs):
+#         # Your attention mechanism logic here
+#         return inputs
+
+#     def get_config(self):
+#         config = super(Attention, self).get_config()
+#         # Add any parameters used in __init__ to the config
+#         return config
+
+from tensorflow.keras.layers import Layer
+from tensorflow.keras import backend as K
+
+class Attention(Layer):
+    def __init__(self, **kwargs):
+        super(Attention2, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        # Build layer logic here
+        super(Attention2, self).build(input_shape)
+
+    def call(self, inputs, mask=None):
+        # Attention2 mechanism logic here
+        return inputs
+
+    def compute_mask(self, inputs, mask=None):
+        # Override compute_mask if needed
+        return mask
+
+    def get_config(self):
+        # This is needed to serialize the layer
+        config = super(Attention2, self).get_config()
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        # This is needed to deserialize the layer
+        return cls(**config)

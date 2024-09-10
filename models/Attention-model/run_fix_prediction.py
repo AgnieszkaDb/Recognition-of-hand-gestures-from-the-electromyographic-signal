@@ -93,6 +93,11 @@ model.compile(Ranger(learning_rate=1e-3), loss=loss, metrics=["accuracy"])
 
 print(model.summary())
 
+# Load the model
+print(test)
+
+
+
 history = model.fit(
     train,
     epochs=2,
@@ -109,14 +114,28 @@ history = model.fit(
     shuffle = False,
 )
 
-def get_predictions_and_labels(model, test):
-    y_pred_probs = model.predict(test)
-    y_pred = np.argmax(y_pred_probs, axis=1)
-    y_test = np.concatenate([y for x, y in test], axis=0)
+
+
+def get_predictions_and_labels(model, test_generator):
+    y_pred_list = []
+    y_test_list = []
+
+    for x_batch, y_batch in test_generator:
+        y_pred_probs_batch = model.predict(x_batch)
+        y_pred_batch = np.argmax(y_pred_probs_batch, axis=1)
+        y_test_batch = np.argmax(y_batch, axis=1)
+
+        y_pred_list.append(y_pred_batch)
+        y_test_list.append(y_test_batch)
+
+    # Concatenate all batches to get the full prediction and test label arrays
+    y_pred = np.concatenate(y_pred_list, axis=0)
+    y_test = np.concatenate(y_test_list, axis=0)
+
     return y_pred, y_test
 
 y_pred, y_test = get_predictions_and_labels(model, test)
-y_test = np.argmax(y_test, axis=1)
+
 
 history_data = {
     'model_name': 'Simple model of attention',
