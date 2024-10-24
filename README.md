@@ -1,6 +1,6 @@
-# RECOGNITION OF HAND GESTURES FROM THE ELECTROMYOGRAPHIC SIGNAL
+# Recognition of hand gestures from the electromyographic signal: A review.
 
-This repository contains the code and resources used in the master's thesis titled **"RECOGNITION OF HAND GESTURES FROM THE ELECTROMYOGRAPHIC SIGNAL"**.
+This repository contains the code and resources used in the master's thesis titled **"Recognition of hand gestures from the electromyographic signal"**.
 
 ## Overview
 
