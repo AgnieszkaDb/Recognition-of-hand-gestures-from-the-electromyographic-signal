@@ -1,4 +1,4 @@
-# RECOGNITION OF HAND GESTURES FROM THE ELECTROMYOGRAPHIC SIGNAL
+' # RECOGNITION OF HAND GESTURES FROM THE ELECTROMYOGRAPHIC SIGNAL
 
 This repository contains the code and resources used in the master's thesis titled **"RECOGNITION OF HAND GESTURES FROM THE ELECTROMYOGRAPHIC SIGNAL"**.
 
@@ -25,4 +25,21 @@ To set up the necessary conda environments, navigate to the `conda` directory an
 ```bash
 cd conda
 bash load_envs.sh
-'''
+```
+
+## Running Experiments
+
+To run all the experiments, execute the following command:
+
+```bash
+bash run_all.bash
+```
+
+## Generating Metrics
+
+After running the experiments, you can generate the evaluation metrics for model comparison by running:
+
+```bash
+bash metrics.bash
+```
+
